@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>QuickFoods</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="styles/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="styles/simple-sidebar.css" rel="stylesheet">
+
+    <!-- jQuery Version 1.11.0 -->
+    <script src="js/jquery-1.11.0.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.css">
+    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+ <!--    <div id="wrapper">
+
+        <!-- Sidebar -->
+ <!--       <div id="sidebar-wrapper">
+            <ul class="sidebar-nav" >
+                <li class="sidebar-brand">
+                    <a href="/views/home.html" data-target="#replacable-content" data-toggle="tabajax" id="home_tab" >QuickFoods</a>
+                </li>
+                 <li class="divider"></li>
+                <li>
+                    <a href="/views/add_category.html" data-target="#replacable-content" data-toggle="tabajax" id="add_category_tab">Add Category</a>
+                </li>
+                 <li class="divider"></li>
+                <li>
+                    <a href="/views/add_items.html" data-target="#replacable-content" data-toggle="tabajax">Add Items</a>
+                </li>
+                 <li class="divider"></li>
+                <li>
+                    <a href="/views/update_items.html" data-target="#replacable-content" data-toggle="tabajax">Update Items</a>
+                </li>
+                 <li class="divider"></li>
+                <li>
+                    <a href="/views/delete_items.html" data-target="#replacable-content" data-toggle="tabajax">Delete Items</a>
+                </li>
+                 <li class="divider"></li>
+                <li>
+                    <a href="/views/delete_category.html" data-target="#replacable-content" data-toggle="tabajax">Delete Category</a>
+                </li>
+                 <li class="divider"></li>
+            </ul>
+        </div>
+  -->       <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12" id="main-content">
+                         <h1>Welcome to QuickFoods</h1>
+                            <p>Its up to the waiters to take orders and up to the chefs to do the cooking.. Why should they worry about delays in communication between each other? That’s totally on us!</p>
+                            <strong>Remember to Sync all the data from all applicable devices once you are done updating the details</strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6" id="update-menu-button-div">
+                            <center><button type="button" class="btn btn-primary" id="update_menu_button">Update Menu</button></center>
+                    </div>
+                    <div class="col-lg-6" id="reports-and-charts-button-div">
+                            <center><button type="button" class="btn btn-primary" id="reports_and_charts_button">Reports and Charts</button></center>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12" id="replacable-content">
+                         <h1>Welcome to QuickFoods</h1>
+                            <p>Its up to the waiters to take orders and up to the chefs to do the cooking.. Why should they worry about delays in communication between each other? That’s totally on us!</p>
+                            <strong>Remember to Sync all the data from all applicable devices once you are done updating the details</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /#page-content-wrapper -->
+
+<!--         <div id="toggle-menu-div">
+            <div class="container-fluid">
+                 <div class="row">
+                     <div class="col-lg-12">
+                        <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+    </div>
+    <!-- /#wrapper -->
+
+
+    <!-- Bootstrap Core JavaScript -->
+    <!-- <script src="js/bootstrap.min.js"></script> -->
+
+    <!-- Menu Toggle Script -->
+    <script>
+    
+    $("#update_menu_button").click(function(){
+        $.get("/views/update_menu.html", function(data) {
+            $("#replacable-content").html(data);
+        });
+    });
+
+    $("#reports_and_charts_button").click(function(){
+        $.get("/views/reports_and_charts.html", function(data) {
+            
+            $("#replacable-content").html(data);
+            fillIntoTables();
+            
+            $("#item_sales").dataTable();
+            $("#orders").dataTable();
+
+
+        });
+            
+    });
+    
+
+
+    function fillIntoTables()
+    {
+        var ordersData = getTableData("orders");
+
+        for(var i=0;i<ordersData.length;i++)
+        {
+            var row = ordersData[i];
+            addRowToTable("orders",row);
+        }
+
+        var item_sales = getTableData("item_sales");
+
+        for(var i=0;i<item_sales.length;i++)
+        {
+            var row = item_sales[i];
+            addRowToTable("item_sales",row);
+        }
+    }
+
+    function getTableData(table_id)
+    {
+        if(table_id=="orders")
+        {
+            var jsonobject = '[{"TableNo":"12","Order":"ABCD","Date":"21/12/2014","Time":"13:13:23","Price":"323","Waiter":"Suresh"},{"TableNo":"11","Order":"WDBS","Date":"20/12/2014","Time":"11:53:23","Price":"750","Waiter":"Alse"},{"TableNo":"5","Order":"WFHS","Date":"20/12/2014","Time":"22:32:23","Price":"1230","Waiter":"Alse"},{"TableNo":"6","Order":"IFRJ","Date":"20/12/2014","Time":"11:33:53","Price":"2060","Waiter":"Ambusher"},{"TableNo":"5","Order":"EHLD","Date":"22/12/2014","Time":"15:13:24","Price":"450","Waiter":"Ambusher"},{"TableNo":"12","Order":"BHFD","Date":"22/12/2014","Time":"12:43:23","Price":"5600","Waiter":"Suresh"},{"TableNo":"12","Order":"DFRW","Date":"22/12/2014","Time":"14:32:23","Price":"2000","Waiter":"Alse"}]';
+
+            return JSON.parse(jsonobject);
+        }
+                                                                                                    
+        if(table_id=="item_sales")
+        {
+            var jsonobject = '[{"Item":"Paneer Butter Masala","Quantity":"11","Total":"2545"},{"Item":"Chicken Butter Masala","Quantity":"22","Total":"5645"},{"Item":"Tomato Soup","Quantity":"55","Total":"14344"},{"Item":"Jeera Rice","Quantity":"44","Total":"34534"},{"Item":"Pepsi","Quantity":"77","Total":"1123"},{"Item":"Chicken 65","Quantity":"33","Total":"234234"}]';
+
+            return JSON.parse(jsonobject);
+        }   
+    }
+
+    function addRowToTable(table_id, row)
+    {
+        if(table_id=="orders")
+        {
+            $("#orders").append("<tr><td>"+row.TableNo+"</td><td>"+row.Order+"</td><td>"+row.Date+"</td><td>"+row.Time+"</td><td>"+row.Price+"</td><td>"+row.Waiter+"</td></tr>");
+        }
+
+        if(table_id=="item_sales")
+        {
+            $("#item_sales").append("<tr><td>"+row.Item+"</td><td>"+row.Quantity+"</td><td>"+row.Total+"</td></tr>");
+        }
+        
+    }
+
+ 
+    </script>
+
+</body>
+
+</html>
