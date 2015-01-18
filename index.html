@@ -19,6 +19,10 @@
 
     <!-- jQuery Version 1.11.0 -->
     <script src="js/jquery-1.11.0.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.js"></script>
+    <script type="text/javascript" src="js/flot/jquery.flot.min.js"></script>    
+    <script type="text/javascript" src="js/flot/jquery.flot.symbol.js"></script>
+    <script type="text/javascript" src="js/flot/jquery.flot.axislabels.js"></script>
 
 
     <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
@@ -30,7 +34,7 @@
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.s7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
@@ -81,6 +85,7 @@
                             <strong>Remember to Sync all the data from all applicable devices once you are done updating the details</strong>
                     </div>
                 </div>
+                <br/><br/>
                 <div class="row">
                     <div class="col-lg-6" id="update-menu-button-div">
                             <center><button type="button" class="btn btn-primary" id="update_menu_button">Update Menu</button></center>
@@ -91,9 +96,9 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12" id="replacable-content">
-                         <h1>Welcome to QuickFoods</h1>
+                         <!-- <h1>Welcome to QuickFoods</h1>
                             <p>Its up to the waiters to take orders and up to the chefs to do the cooking.. Why should they worry about delays in communication between each other? That’s totally on us!</p>
-                            <strong>Remember to Sync all the data from all applicable devices once you are done updating the details</strong>
+                            <strong>Remember to Sync all the data from all applicable devices once you are done updating the details</strong> -->
                     </div>
                 </div>
             </div>
@@ -123,7 +128,9 @@
     $("#update_menu_button").click(function(){
         $.get("/views/update_menu.html", function(data) {
             $("#replacable-content").html(data);
-        });
+        }); 
+
+
     });
 
     $("#reports_and_charts_button").click(function(){
@@ -131,16 +138,24 @@
             
             $("#replacable-content").html(data);
             fillIntoTables();
-            
             $("#item_sales").dataTable();
             $("#orders").dataTable();
-
-
-        });
-            
+            // $.plot($("#placeholder"), [ [[0, 0], [1, 1]] ], { yaxis: { max: 1 } });
+            createCategoryMenu();
+            createCharts($("#item_sales_chart"));
+        });         
     });
     
 
+    // $("#item_category_menu").live("change", function(){
+    //     alert( "Handler for .change() called." );
+    //     createCharts($("#item_sales_chart"));
+    //  });
+
+    function refreshItemsChart()
+    {
+        // createCharts($("#item_sales_chart"));
+    }
 
     function fillIntoTables()
     {
@@ -161,20 +176,88 @@
         }
     }
 
+    function createCategoryMenu()
+    {
+        var item_category_menu = document.getElementById("item_category_menu");
+        var option = document.createElement("option");
+            option.text = "Select Category"
+            option.value = "All";
+            item_category_menu.add(option);
+            
+        var categories = getData("categories");
+        for(var i=0;i<categories.length;i++)
+        {
+            var option = document.createElement("option");
+            option.text = categories[i].Category;
+            option.value = categories[i].Category;
+            item_category_menu.add(option);
+        }
+    }
+
+    function createCharts(placeholder)
+    {
+
+        var data = getChartData("item_sales");
+        // data = "["+data+"]";
+        // data = [[[0,11],[1,22],[2,55],[3,44],[4,77],[5,33]]];
+        var dataset = [
+            { label: "Item Sales ", data: data, color: "#5482FF" }
+            ];
+        var ticks = getChartTicks("item_sales");
+        var options = {
+            series: {
+                bars: {
+                    show: true
+                }
+            },
+            bars: {
+                align: "center",
+                barWidth: 0.3
+            },
+            xaxis: {
+                axisLabel: "Item names (Hover over the bars for total sales)",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: 'Verdana, Arial',
+                axisLabelPadding: 10,
+                ticks: ticks
+            },
+            yaxis: {
+                axisLabel: "Total Quantity",
+                axisLabelUseCanvas: true,
+                axisLabelFontSizePixels: 12,
+                axisLabelFontFamily: 'Verdana, Arial',
+                axisLabelPadding: 3,
+            },
+            legend: {
+                noColumns: 0,
+                labelBoxBorderColor: "#000000",
+                position: "nw"
+            },
+            grid: {
+                hoverable: true,
+                borderWidth: 2,
+                backgroundColor: { colors: ["#123456", "#EDF5FF"] }
+            }
+        };
+
+        var previousPoint = null, previousLabel = null;
+ 
+            // alert(data + " " + ticks);   
+            $.plot(placeholder, dataset, options);
+            // $.plot(placeholder,  [[[0,11],[1,22],[2,55],[3,44],[4,77],[5,33]]] , options);
+            $(placeholder).UseTooltip(previousPoint,previousLabel);
+    }
     function getTableData(table_id)
     {
         if(table_id=="orders")
         {
-            var jsonobject = '[{"TableNo":"12","Order":"ABCD","Date":"21/12/2014","Time":"13:13:23","Price":"323","Waiter":"Suresh"},{"TableNo":"11","Order":"WDBS","Date":"20/12/2014","Time":"11:53:23","Price":"750","Waiter":"Alse"},{"TableNo":"5","Order":"WFHS","Date":"20/12/2014","Time":"22:32:23","Price":"1230","Waiter":"Alse"},{"TableNo":"6","Order":"IFRJ","Date":"20/12/2014","Time":"11:33:53","Price":"2060","Waiter":"Ambusher"},{"TableNo":"5","Order":"EHLD","Date":"22/12/2014","Time":"15:13:24","Price":"450","Waiter":"Ambusher"},{"TableNo":"12","Order":"BHFD","Date":"22/12/2014","Time":"12:43:23","Price":"5600","Waiter":"Suresh"},{"TableNo":"12","Order":"DFRW","Date":"22/12/2014","Time":"14:32:23","Price":"2000","Waiter":"Alse"}]';
-
-            return JSON.parse(jsonobject);
+            return getData("orders");
         }
                                                                                                     
         if(table_id=="item_sales")
         {
-            var jsonobject = '[{"Item":"Paneer Butter Masala","Quantity":"11","Total":"2545"},{"Item":"Chicken Butter Masala","Quantity":"22","Total":"5645"},{"Item":"Tomato Soup","Quantity":"55","Total":"14344"},{"Item":"Jeera Rice","Quantity":"44","Total":"34534"},{"Item":"Pepsi","Quantity":"77","Total":"1123"},{"Item":"Chicken 65","Quantity":"33","Total":"234234"}]';
-
-            return JSON.parse(jsonobject);
+            return getData("item_sales");
         }   
     }
 
@@ -192,7 +275,123 @@
         
     }
 
+    function getData(list)
+    {
+        var jsonobject;
+        if(list=="orders")
+        {
+            jsonobject = '[{"TableNo":"12","Order":"ABCD","Date":"21/12/2014","Time":"13:13:23","Price":"323","Waiter":"Suresh"},{"TableNo":"11","Order":"WDBS","Date":"20/12/2014","Time":"11:53:23","Price":"750","Waiter":"Alse"},{"TableNo":"5","Order":"WFHS","Date":"20/12/2014","Time":"22:32:23","Price":"1230","Waiter":"Alse"},{"TableNo":"6","Order":"IFRJ","Date":"20/12/2014","Time":"11:33:53","Price":"2060","Waiter":"Ambusher"},{"TableNo":"5","Order":"EHLD","Date":"22/12/2014","Time":"15:13:24","Price":"450","Waiter":"Ambusher"},{"TableNo":"12","Order":"BHFD","Date":"22/12/2014","Time":"12:43:23","Price":"5600","Waiter":"Suresh"},{"TableNo":"12","Order":"DFRW","Date":"22/12/2014","Time":"14:32:23","Price":"2000","Waiter":"Alse"}]';
+        }
+                                                                                                    
+        if(list=="item_sales")
+        {
+            jsonobject = '[{"Item":"Paneer Butter Masala","Quantity":"11","Total":"2545", "Category":"Veg"},{"Item":"Chicken Butter Masala","Quantity":"22","Total":"5645", "Category":"Non Veg"},{"Item":"Tomato Soup","Quantity":"55","Total":"14344", "Category":"Veg"},{"Item":"Jeera Rice","Quantity":"44","Total":"34534", "Category":"Veg"},{"Item":"Pepsi","Quantity":"77","Total":"1123", "Category":"Drinks"},{"Item":"Chicken 65","Quantity":"33","Total":"234234", "Category":"Non Veg"}]';
+        }   
+
+        if(list=="categories")
+        {
+            jsonobject = '[{"Category":"Veg"}, {"Category":"Non Veg"}, {"Category":"Drinks"}]';
+        }
+
+        return JSON.parse(jsonobject);
+    }
+
+function getChartData(table_id)
+    {
+        if(table_id=="orders")
+        {
+            var orders = getData("orders");
+        }
+                                                                                                    
+        if(table_id=="item_sales")
+        {
+            var category = (document.getElementById("item_category_menu")).value;
+            var item_sales = getData("item_sales");
+            var chartData = "[";
+            for(var i=0;i<item_sales.length;i++)
+            {
+                if(item_sales[i].Category!=category && category!="All")
+                    continue;
+                var row = item_sales[i];
+                chartData = chartData + "[" + i + "," + item_sales[i].Quantity + "]";
+                if(i!=item_sales.length-1)
+                    chartData = chartData + ",";
+            }
+            chartData = chartData + "]";
+            return eval(chartData);
+        }   
+    }
  
+    function getChartTicks(table_id)
+    {
+        if(table_id=="orders")
+        {
+            var orders = getData("orders");
+        }
+                                                                                                    
+        if(table_id=="item_sales")
+        {
+            var category = (document.getElementById("item_category_menu")).value;
+            var item_sales = getData("item_sales");
+            var chartTicks = "[";
+            for(var i=0;i<item_sales.length;i++)
+            {
+                if(item_sales[i].Category!=category && category!="All")
+                    continue;
+                var row = item_sales[i];
+                chartTicks = chartTicks + "[" + i + "," + "\""+item_sales[i].Item+ "\"]";
+                if(i!=item_sales.length-1)
+                    chartTicks = chartTicks + ",";
+            }
+            chartTicks = chartTicks + "]";
+            return eval(chartTicks);
+        }   
+    }
+
+    
+$.fn.UseTooltip = function (previousPoint,previousLabel) {
+    $(this).bind("plothover", function (event, pos, item) {
+        if (item) {
+            if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
+                previousPoint = item.dataIndex;
+                previousLabel = item.series.label;
+                $("#tooltip").remove();
+
+                var x = item.datapoint[0];
+                var y = item.datapoint[1];
+                var z = (getData("item_sales"))[x].Total
+
+                var color = item.series.color;
+
+                //console.log(item.series.xaxis.ticks[x].label);                
+                
+                showTooltip(item.pageX,
+                        item.pageY,
+                        color,
+                        "<strong>" + "Total sales" + "</strong><br>" + item.series.xaxis.ticks[x].label + " : <strong>" + z + "</strong>");                
+            }
+        } else {
+            $("#tooltip").remove();
+            previousPoint = null;
+        }
+    });
+};
+
+function showTooltip(x, y, color, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position: 'absolute',
+        display: 'none',
+        top: y - 40,
+        left: x - 120,
+        border: '2px solid ' + color,
+        padding: '3px',
+        'font-size': '9px',
+        'border-radius': '5px',
+        'background-color': '#fff',
+        'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        opacity: 0.9
+    }).appendTo("body").fadeIn(200);
+}
     </script>
 
 </body>
